@@ -1,5 +1,20 @@
 export default {
   async fetch(request, env, ctx) {
+    // Log do método da requisição
+    console.log('Método da requisição:', request.method);
+
+    // Tratando requisição OPTIONS (preflight)
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Max-Age': '86400',
+        },
+      });
+    }
+
     try {
       const requestId = crypto.randomUUID();
       const startTime = Date.now();
@@ -11,7 +26,7 @@ export default {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.text(); // Usando .text() ao invés de .json() para ser mais flexível
+      const data = await response.text();
       const endTime = Date.now();
       const totalTime = endTime - startTime;
       
@@ -19,7 +34,8 @@ export default {
         requestId,
         totalTime: `${totalTime}ms`,
         message: 'Chamada ao webhook realizada com sucesso 2!',
-        responseData: data
+        responseData: data,
+        requestMethod: request.method  // Adicionando o método da requisição na resposta
       }, null, 2), {
         headers: { 
           'content-type': 'application/json',
@@ -29,7 +45,8 @@ export default {
     } catch (error) {
       return new Response(JSON.stringify({
         error: error.message,
-        stack: error.stack
+        stack: error.stack,
+        requestMethod: request.method  // Adicionando o método da requisição no erro também
       }, null, 2), {
         status: 500,
         headers: { 

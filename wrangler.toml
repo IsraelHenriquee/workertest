@@ -1,0 +1,9 @@
+name = "hello-worker"
+main = "src/index.js"
+compatibility_date = "2024-02-19"
+
+[env.production]
+name = "hello-worker-prod"
+
+[env.development]
+name = "hello-worker-dev"
